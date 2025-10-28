@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A Node.js project with an Express server that fetches products from category 4731.",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
