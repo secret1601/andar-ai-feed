@@ -4,6 +4,14 @@ import fetch from "node-fetch";
 import dotenv from "dotenv"; // 'dotenv' 패키지명으로 수정
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
+
+const { readFile } = fs.promises;
+
+// Vercel 환경이 아닐 때만 dotenv를 실행하여 Vercel에서 발생하는 런타임 오류 방지
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL === undefined) {
+    dotenv.config({ path: path.resolve(process.cwd(), '.env') }); 
+}
 
 // dotenv 설정 시 경로를 명시하는 것이 안정적입니다.
 dotenv.config({ path: path.resolve(process.cwd(), '.env') }); 
@@ -52,8 +60,8 @@ async function getAccessToken() {
         });
 
         if (!response.ok) {
-            const errorData = await response.text();
-            throw new Error(`Token 발급 실패: ${response.status} - ${errorText.substring(0, 150)}`);
+            const errorData = await response.text(); 
+            throw new Error(`Token 발급 실패: ${response.status} - ${errorData.substring(0, 150)}...`); 
         }
 
         const tokenData = await response.json();
@@ -129,7 +137,7 @@ app.get('/ai-feed', async (req, res) => {
 
         // 5. HTML 템플릿 로드 및 삽입
         const htmlTemplatePath = path.join(__dirname, 'public', 'ai-feed.html');
-        let htmlContent = await fs.promises.readFile(htmlTemplatePath, 'utf8');
+        let htmlContent = await readFile(htmlTemplatePath, 'utf8');
 
         // JSON-LD를 삽입할 위치를 마커로 지정하고 치환합니다.
         // public/ai-feed.html 파일에서 ''와 같은 마커 사용을 추천합니다.
