@@ -12,7 +12,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Access Token을 전역 변수로 저장하고 관리합니다.
 let ACCESS_TOKEN = null;
@@ -53,8 +52,8 @@ async function getAccessToken() {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Token 발급 실패: ${response.status} - ${JSON.stringify(errorData)}`);
+            const errorData = await response.text();
+            throw new Error(`Token 발급 실패: ${response.status} - ${errorText.substring(0, 150)}`);
         }
 
         const tokenData = await response.json();
@@ -69,7 +68,7 @@ async function getAccessToken() {
     } catch (error) {
         console.error("인증 에러:", error.message);
         ACCESS_TOKEN = null; // 실패 시 초기화
-        throw new Error("CAFE24 인증 서버에 연결할 수 없습니다.");
+        throw new Error(error.message || "CAFE24 인증 서버 연결 실패.");
     }
 }
 
@@ -156,6 +155,3 @@ app.get('/ai-feed', async (req, res) => {
 
 // 정적 파일 서빙은 계속 유지 (public 폴더 내의 기타 파일)
 app.use(express.static(path.join(__dirname, 'public')));
-
-
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
